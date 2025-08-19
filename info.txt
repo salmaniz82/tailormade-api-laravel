@@ -1,0 +1,49 @@
+
+
+sam@webential.co.uk
+test@123456
+
+
+AFTER INSTALL IF YOU RUN MIGRATON YOU WOULD MOST LIKELY GET THIS ERROR
+WHEN RUNNING OLDDER VERSION OF MYSQL with VARCHAR AND UNIQUE
+
+ Illuminate\Database\QueryException
+ SQLSTATE[42000]: Syntax error or access violation: 1071 Specified key was too long; max key length is 1000 bytes (Connection: mysql, SQL: alter table `users` add unique `users_email_unique`(`email`))
+
+    App\Providers\AppServiceProvider.php,
+
+    use Illuminate\Support\Facades\Schema; : import
+
+        inside boot() method:
+
+    Schema::defaultStringLength(191);
+
+    solution 2 : fix on migration field
+
+        $table->string('email', 191)->unique();
+
+    php artisan migrate:fresh
+
+
+MIGRATIONS
+----------
+php artisan make:migration create_roles_table
+
+php artisan make:model Role
+
+php artisan make:controller UserController --resource
+
+
+
+php make:model Stock -mcr
+
+php artisan make:seeder StockSeeder
+
+php artisan db:seed --class=StockSeeder
+
+
+php artisan tinker
+
+use \App\Models\Role
+Role::all();
+Role::create(['role' => 'Contributor']);
