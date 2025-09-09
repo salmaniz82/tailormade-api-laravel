@@ -15,6 +15,7 @@ class SwatchesController extends Controller
     : JsonResponse
      */
 
+    
     public function index(Request $request)
     {
         try {
@@ -26,6 +27,12 @@ class SwatchesController extends Controller
             
             // Parse raw query string to handle parameters with spaces
             $rawQueryString = $request->getQueryString();
+
+            Log::error('rawQuery String: ', [
+                'query_string' => $rawQueryString
+            ]);
+
+
             $customParams = [];
             if ($rawQueryString) {
                 // Manually parse the query string to handle spaces in parameter names
@@ -47,7 +54,7 @@ class SwatchesController extends Controller
             }
 
             $allowedFilterKeys = ['Mill', 'Bunch', 'Season', 'Garment Type'];
-            $appliedFilters = [];
+            
 
             if ($filteringActivate === 'on') {
                 foreach ($allowedFilterKeys as $key) {
@@ -96,7 +103,7 @@ class SwatchesController extends Controller
                 'collections' => $swatches,
                 'filters' => $filters,   // useful for frontend
                 'sources' => $stocks,
-                'applied_filters' => $appliedFilters, // for debugging
+                
                 'meta' => [
                     'page'   => $page,
                     'limit'  => $limit,
@@ -129,20 +136,7 @@ class SwatchesController extends Controller
         return $clean ? $keys : $this->replaceSpacesWithUnderscores($keys);
     }
 
-    private function replaceSpacesWithUnderscores(array $array): array
-    {
-        return array_map(fn($item) => str_replace(' ', '_', $item), $array);
-    }
-
-    private function dynamicDBFilters(string $source, bool $clean = false): array
-    {
-        $stock = Stock::where('url', $source)->first();
-        if (!$stock || !$stock->metaFields) {
-            return [];
-        }
-
-        return json_decode($stock->metaFields, true) ?? [];
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -163,10 +157,34 @@ class SwatchesController extends Controller
     /**
      * Display the specified resource.
      */
+
     public function show(string $id)
     {
-        //
+        try {
+
+            $swatch = Swatch::select('id', 'title', 'imageUrl', 'thumbnail', 'productPrice', 'productMeta', 'source', 'status')
+                ->find($id);
+            if ($swatch) {
+                return response()->json([
+                    'message' => 'Fetch success',
+                    'swatch'  => $swatch->toArray(),
+                ], 200);
+            }
+            // Not found
+            return response()->json([
+                'message' => 'Swatch not found',
+            ], 404);
+
+        } catch (\Exception $e) {
+            
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error'   => $e->getMessage(), // ⚠️ remove in production
+            ], 500);
+        }
     }
+
+    
 
     /**
      * Show the form for editing the specified resource.

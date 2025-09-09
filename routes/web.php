@@ -16,7 +16,10 @@ Route::get('/login', [UserController::class, 'showLogin'])->name('login');
 Route::post('/login', [UserController::class, 'login']);
 Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
+/*
 Route::get('/api/swatches', [swatchesController::class, 'index']);
+*/
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
 
 

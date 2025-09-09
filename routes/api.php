@@ -3,14 +3,39 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Example protected route (needs auth:api middleware)
+
+
 
 /*
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::get('/user', function (Request $request) {
     return $request->user();
-});
+})->middleware('auth:sanctum');
 */
 
-// Example open route
+
 Route::get('/swatches', [App\Http\Controllers\SwatchesController::class, 'index']);
+
+Route::get('/swatch/{id}', [App\Http\Controllers\SwatchesController::class, 'show']);
+
+/*
+Route::get('/swatches/{id}', [App\Http\Controllers\SwatchesController::class, 'show']);
+*/
+
+Route::post('/swatches', [App\Http\Controllers\SwatchesController::class, 'store']);
+
+Route::put('/swatches/{id}', [App\Http\Controllers\SwatchesController::class, 'update']);
+
+Route::delete('/swatches/{id}', [App\Http\Controllers\SwatchesController::class, 'destroy']);
+
+// Swatch Meta for the dashboard
+Route::get('/swatchemeta', [App\Http\Controllers\StockController::class, 'swatchMeta']);
+
+Route::get('/stocks', [App\Http\Controllers\StockController::class, 'index']);
+
+
+Route::get('/hello', function() {
+
+    return "HELLO WORLD FROM API ROUTE";
+
+});
 

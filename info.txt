@@ -47,3 +47,55 @@ php artisan tinker
 use \App\Models\Role
 Role::all();
 Role::create(['role' => 'Contributor']);
+
+
+
+...............................
+
+Admin Routes : 
+
+    https://cloth.tailormadelondon.com/swatches?source=all&limit=50&status=all
+    - collection 
+    - meta 
+    - filter
+    - sources
+    (used for main dashboard listings with the filters) 
+
+
+    
+    https://cloth.tailormadelondon.com/swatchemeta
+    - metaData array of objects
+        id,title, url, alias, metaFields
+    (used while adding swatches for quickly populate the required fields)
+
+
+    https://cloth.tailormadelondon.com/stocks
+    stocks index pages 
+
+    
+
+
+
+https://cloth.tailormadelondon.com/swatchemeta
+
+        {
+            "id": 1,
+            "title": "Fox Brothers",
+            "url": "foxflannel.com",
+            "alias": "FF",
+            "metaFields": "[\"Mill\",\"Bunch\",\"Description\",\"Composition\",\"Weight\",\"Season\",\"Garment Type\"]"
+        },
+        
+        http://127.0.0.1:8000/api/swatchemeta
+        {
+            "id": 2,
+            "title": "Fox Brothers",
+            "url": "foxflannel.com",
+            "alias": "FF",
+            "metaFields": "[\"Mill\", \"Bunch\", \"Description\", \"Composition\", \"Weight\", \"Season\", \"Garment Type\"]"
+        },
+
+
+
+
+
