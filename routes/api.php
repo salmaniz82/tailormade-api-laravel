@@ -32,6 +32,18 @@ Route::get('/swatchemeta', [App\Http\Controllers\StockController::class, 'swatch
 
 Route::get('/stocks', [App\Http\Controllers\StockController::class, 'index']);
 
+Route::post('/stocks', [App\Http\Controllers\StockController::class, 'store']);
+
+Route::delete('/stocks/{id}', [App\Http\Controllers\StockController::class, 'destroy']);
+
+Route::put('/stocks/{id}', [App\Http\Controllers\StockController::class, 'update']);
+
+
+
+
+
+
+
 
 Route::get('/hello', function() {
 

@@ -57,7 +57,54 @@ class StockController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        try {
+        // 1. Validate incoming data
+        $validated = $request->validate([
+            'title'      => 'required|string|max:255',
+            'url'        => 'required|url|max:255',
+            'alias'      => 'required|string|max:255|unique:stocks,alias',
+             'metaFields' => 'required|string'
+        ]);
+
+        $decodedMeta = json_decode($validated['metaFields'], true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                'message' => 'Invalid metaFields JSON format'
+            ], 422);
+        }
+
+        // 2. Create new stock
+        $stock = Stock::create([
+            'title'      => $validated['title'],
+            'url'        => $validated['url'],
+            'alias'      => $validated['alias'],
+            'metaFields' => json_encode($decodedMeta),
+        ]);
+
+        // 3. Return success response
+        return response()->json([
+            'message'   => 'New stock added',
+            'newStock'  => $stock,
+        ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Validation errors
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            // Any other errors
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error'   => $e->getMessage(), // remove in production if sensitive
+            ], 500);
+    }
+
+
     }
 
     /**
@@ -79,16 +126,76 @@ class StockController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Stock $stock)
+    public function update(Request $request, $id)
     {
-        //
+        
+        $validated = $request->validate([
+            'name'       => 'required|string|max:255',
+            'url'        => 'required|url|max:255',
+            'alias'      => 'required|string|max:255|unique:stocks,alias,' . $id,
+            'metaFields' => 'required|string', // JSON string
+        ]);
+        
+        $decodedMeta = json_decode($validated['metaFields'], true);
+              
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                'message' => 'Invalid metaFields JSON format'
+            ], 422);
+        }
+
+        try {
+
+        $stock = Stock::find($id);
+
+        if (!$stock) {
+            return response()->json([
+                'message' => 'Stock not found',
+            ], 404);
+        }
+
+        $stock->update($validated);
+
+        return response()->json([
+            'message' => 'Stock updated successfully',
+            'stock'   => $stock,
+        ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error while updating Stock',
+                'error'   => $e->getMessage(), // optional for debugging
+            ], 500);
+        }
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Stock $stock)
+    public function destroy($id)
     {
-        //
+        
+        try {
+
+            $deleted = Stock::where('id', $id)->delete();
+
+        if ($deleted) {
+            return response()->json([
+                'message' => 'Stock Deleted!',
+            ], 200);
+        }
+            return response()->json([
+                'message' => 'Stock not found',
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error while deleting record',
+                'error'   => $e->getMessage(), // optional for debugging
+            ], 500);
+        }
+        
     }
+
 }

@@ -96,6 +96,25 @@ https://cloth.tailormadelondon.com/swatchemeta
         },
 
 
+https://cloth.tailormadelondon.com/swatch/325
+
+{
+    "message": "fetch Success",
+    "swatch": {
+        "id": 325,
+        "title": "HA98250",
+        "imageUrl": "\/uploads\/images\/hrs\/98250_1.jpg",
+        "thumbnail": "\/uploads\/images\/hrs\/thumbnail\/98250_1.jpg",
+        "productPrice": "n\/a",
+        "productMeta": "{\"Mill\":\"Harrisons\",\"Bunch\":\"Spring Ram\",\"Description \":\"Navy Blue Glencheck High Twist Wool\",\"Composition \":\"100% Wool\",\"Weight\":\"360grams\",\"Season\":\"Transitional \",\"Garment Type \":\"Suit\"}",
+        "source": "harrisons1863.com",
+        "status": 1
+    }
+}
+
+
+http://127.0.0.1:8000/api/swatch/325
+
 
 
 

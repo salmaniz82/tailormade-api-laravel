@@ -32,19 +32,16 @@ class Stock extends Model
     }
 
     public static function swatchMeta(){
-
-
         /*
         $stocks = Stock::select('id', 'name', 'url', 'alias', 'metaFields')->get()->toArray();
         */
-
         $stocks = Stock::select('id', 'name as title', 'url', 'alias', 'metaFields')
         ->get()
-        ->toArray();
-        
+        ->toArray();       
         return $stocks;
 
-
     }
+
+    
 
 }
