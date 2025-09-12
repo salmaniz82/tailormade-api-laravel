@@ -59,28 +59,23 @@ class StockController extends Controller
     {
 
         try {
-        // 1. Validate incoming data
-        $validated = $request->validate([
-            'title'      => 'required|string|max:255',
-            'url'        => 'required|url|max:255',
-            'alias'      => 'required|string|max:255|unique:stocks,alias',
-             'metaFields' => 'required|string'
-        ]);
-
-        $decodedMeta = json_decode($validated['metaFields'], true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json([
-                'message' => 'Invalid metaFields JSON format'
-            ], 422);
-        }
+            $request->merge([
+                'url' => preg_replace('/^https?:\/\//', '', $request->url), // remove http:// or https://
+            ]);
+            // 1. Validate incoming data
+            $validated = $request->validate([
+                'title'      => 'required|string|max:255',
+                'url' => ['required', 'regex:/^([\w.-]+\.[a-z]{2,})(\/.*)?$/i', 'max:255'],
+                'alias'      => 'required|string|max:255|unique:stocks,alias',
+                'metaFields' => 'required|array'
+            ]);
 
         // 2. Create new stock
         $stock = Stock::create([
-            'title'      => $validated['title'],
+            'name'      => $validated['title'],
             'url'        => $validated['url'],
             'alias'      => $validated['alias'],
-            'metaFields' => json_encode($decodedMeta),
+            'metaFields' => json_encode($validated['metaFields']),
         ]);
 
         // 3. Return success response
@@ -128,21 +123,18 @@ class StockController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         
-        $validated = $request->validate([
-            'name'       => 'required|string|max:255',
-            'url'        => 'required|url|max:255',
-            'alias'      => 'required|string|max:255|unique:stocks,alias,' . $id,
-            'metaFields' => 'required|string', // JSON string
+        $request->merge([
+            'url' => preg_replace('/^https?:\/\//', '', $request->url), // remove http:// or https://
         ]);
-        
-        $decodedMeta = json_decode($validated['metaFields'], true);
-              
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return response()->json([
-                'message' => 'Invalid metaFields JSON format'
-            ], 422);
-        }
+
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'url' => ['required', 'regex:/^([\w.-]+\.[a-z]{2,})(\/.*)?$/i', 'max:255'],
+            'alias'      => 'required|string|max:255|unique:stocks,alias,' . $id,
+            'metaFields' => 'required|array', 
+        ]);
 
         try {
 
@@ -153,6 +145,11 @@ class StockController extends Controller
                 'message' => 'Stock not found',
             ], 404);
         }
+
+        $validated['metaFields'] = json_encode($validated['metaFields']);
+
+        $validated['name'] = $validated['title'];
+        unset($validated['title']);
 
         $stock->update($validated);
 

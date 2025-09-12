@@ -115,6 +115,27 @@ https://cloth.tailormadelondon.com/swatch/325
 
 http://127.0.0.1:8000/api/swatch/325
 
+last IDs
+stocks : 10
+role: 2
+swatches : 2473
+
+
+api testing 
+-----------
+stocks CRUD OPERATIONS
+
+list all
+add new
+delete 
+update
+
+
+
+
+
+
+
 
 
 
