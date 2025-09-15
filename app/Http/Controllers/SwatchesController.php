@@ -1,12 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use \App\Models\Swatch;
-use \App\Models\Stock;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+
+use Illuminate\Support\Facades\Validator;
+use Intervention\Image\ImageManager;
+
+use \App\Models\Swatch;
+use \App\Models\Stock;
 
 class SwatchesController extends Controller
 {
@@ -151,7 +156,85 @@ class SwatchesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title'       => 'required|string|max:255',
+            'status'      => 'required|boolean',
+            'source'      => 'required|string|exists:stocks,source',
+            'productMeta' => 'required|string', // will store as raw JSON string
+            'file'        => 'required|file|image|max:2048', // 2MB limit
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // ✅ Find alias from stock
+            $stock = Stock::where('source', $request->source)->first();
+            if (!$stock) {
+                return response()->json([
+                    'message' => 'Invalid stock source',
+                ], 404);
+            }
+            $alias = $stock->alias;
+
+            // ✅ File handling
+            $file = $request->file('file');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $aliasRootDirectory      = public_path("uploads/images/{$alias}/");
+            $aliasOriginalDirectory  = public_path("uploads/images/{$alias}/original/");
+            $aliasThumbnailDirectory = public_path("uploads/images/{$alias}/thumbnail/");
+
+            foreach ([$aliasRootDirectory, $aliasOriginalDirectory, $aliasThumbnailDirectory] as $dir) {
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+            }
+
+            $rootPath      = $aliasRootDirectory . $fileName;
+            $originalPath  = $aliasOriginalDirectory . $fileName;
+            $thumbnailPath = $aliasThumbnailDirectory . $fileName;
+
+            // ✅ Move original file
+            $file->move($aliasRootDirectory, $fileName);
+
+            // ✅ Make thumbnail
+            $imageManager = new ImageManager(['driver' => 'gd']);
+            $image = $imageManager->make($rootPath)->resize(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $image->save($thumbnailPath);
+
+            // ✅ Save in DB
+            $swatch = Swatch::create([
+                'title'        => $request->title,
+                'source'       => $request->source,
+                'status'       => $request->status,
+                'productMeta'  => $request->productMeta,
+                'imageUrl'     => "/uploads/images/{$alias}/{$fileName}",
+                'thumbnail'    => "/uploads/images/{$alias}/thumbnail/{$fileName}",
+                'productPrice' => 'n/a',
+            ]);
+
+            // ✅ Refresh cached filters
+            Swatch::refreshDynamicFilters();
+
+            return response()->json([
+                'message' => 'Swatch added successfully',
+                'swatch'  => $swatch,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error while adding swatch',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -218,6 +301,3 @@ class SwatchesController extends Controller
         */
     }
 }
-
-
-

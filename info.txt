@@ -1,7 +1,7 @@
-
-
 sam@webential.co.uk
 test@123456
+
+
 
 
 AFTER INSTALL IF YOU RUN MIGRATON YOU WOULD MOST LIKELY GET THIS ERROR
@@ -129,6 +129,31 @@ list all
 add new
 delete 
 update
+
+
+/*
+
+
+*/
+
+
+
+{
+    "title": "test",
+    "url": "testurl.com",
+    "alias": "tturl",
+    "metaFields": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "six"
+    ]
+}
+
+
+
 
 
 

@@ -3,23 +3,15 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-
-
 /*
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 */
 
-
 Route::get('/swatches', [App\Http\Controllers\SwatchesController::class, 'index']);
 
 Route::get('/swatch/{id}', [App\Http\Controllers\SwatchesController::class, 'show']);
-
-/*
-Route::get('/swatches/{id}', [App\Http\Controllers\SwatchesController::class, 'show']);
-*/
 
 Route::post('/swatches', [App\Http\Controllers\SwatchesController::class, 'store']);
 
@@ -39,15 +31,8 @@ Route::delete('/stocks/{id}', [App\Http\Controllers\StockController::class, 'des
 Route::put('/stocks/{id}', [App\Http\Controllers\StockController::class, 'update']);
 
 
-
-
-
-
-
-
 Route::get('/hello', function() {
 
     return "HELLO WORLD FROM API ROUTE";
 
 });
-
