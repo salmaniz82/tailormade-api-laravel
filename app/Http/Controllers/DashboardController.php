@@ -10,8 +10,14 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     public function index(){
+
+        /*
         $user = Auth::user()->toArray();
-        dd($user);
-        return 'hello from dashboard';
+        var_dump($user);
+        die();
+        */
+
+        return view('react-dashboard');
+
     }
 }

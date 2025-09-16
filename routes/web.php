@@ -8,19 +8,23 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return 'Cloth Library API';
 });
 
 Route::get('/login', [UserController::class, 'showLogin'])->name('login');
 
 Route::post('/login', [UserController::class, 'login']);
+
 Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
-/*
-Route::get('/api/swatches', [swatchesController::class, 'index']);
-*/
+
+Route::middleware(['admin'])->group(function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
+
+});
+
+
 
 
 /*

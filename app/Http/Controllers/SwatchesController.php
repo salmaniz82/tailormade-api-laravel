@@ -12,7 +12,7 @@ use Intervention\Image\ImageManager;
 
 use \App\Models\Swatch;
 use \App\Models\Stock;
-
+ 
 class SwatchesController extends Controller
 {
     /*
@@ -280,11 +280,91 @@ class SwatchesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+
+    public function update(Request $request, $id)
     {
-        //
+        if ($request->operation === 'status-toggle') {
+            return $this->statusToggle($request, $id);
+        }
+
+        return $this->contentUpdate($request, $id);
     }
 
+    private function statusToggle(Request $request, $id) {
+
+    $request->validate([
+        'status' => 'required|boolean',
+    ]);
+
+    $swatch = Swatch::find($id);
+
+    if (!$swatch) {
+        return response()->json([
+            'message' => 'Swatch not found',
+            'operation-status' => 'failed'
+        ], 404);
+    }
+
+    try {
+        $swatch->status = $request->status ? 1 : 0;
+        $swatch->save();
+
+        Swatch::refreshDynamicFilters();
+
+        return response()->json([
+            'message' => 'Status updated',
+            'operation-status' => 'ok'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error while updating status',
+            'operation-status' => 'failed',
+            'debug' => $e->getMessage()
+        ], 500);
+    }
+}
+
+private function contentUpdate(Request $request, $id)
+{
+    $swatch = Swatch::find($id);
+
+    if (!$swatch) {
+        return response()->json([
+            'message' => 'Swatch not found',
+            'operation-status' => 'failed'
+        ], 404);
+    }
+
+    $validated = $request->validate([
+        'title'       => 'sometimes|required|string|max:255',
+        'source'      => 'sometimes|required|string|max:255',
+        'productMeta' => 'sometimes|required|json',
+        'status'      => 'sometimes|required|boolean',
+        // add more fields as needed
+    ]);
+
+    try {
+        $swatch->update($validated);
+
+        Swatch::refreshDynamicFilters();
+
+        return response()->json([
+            'message' => 'Swatch updated successfully',
+            'operation-status' => 'ok'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error while updating swatch',
+            'operation-status' => 'failed',
+            'debug' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+    
     /**
      * Remove the specified resource in storage.
      */
