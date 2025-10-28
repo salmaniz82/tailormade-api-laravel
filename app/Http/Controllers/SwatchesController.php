@@ -23,13 +23,24 @@ class SwatchesController extends Controller
     
     public function index(Request $request)
     {
+
+
+        DB::listen(function ($query) {
+        Log::info('SQL Executed', [
+            'sql' => $query->sql,
+            'bindings' => $query->bindings,
+        ]);
+    });
+
+
+
         try {
             $page    = (int) $request->query('page', 1);
             $limit   = (int) $request->query('limit', 12);
-            $status  = $request->query('status', 1);
+            $status = $request->has('status') ? $request->query('status') : 1;
             $source  = $request->query('source', 'all');
             $filteringActivate = $request->query('filteringActivate', 'off');
-            
+
             // Parse raw query string to handle parameters with spaces
             $rawQueryString = $request->getQueryString();
 
@@ -51,15 +62,24 @@ class SwatchesController extends Controller
                     }
                 }
             }
-            
-            $query = Swatch::query()->where('status', $status);
-            
+
+            $query = Swatch::query();
+            $query->where('trashed', 0);
+
+            if ($status !== 'all') {
+               $query->where('status', (int) $status);
+              
+            }
+   
             if ($source !== 'all') {
                 $query->where('source', $source);
             }
 
-            $allowedFilterKeys = ['Mill', 'Bunch', 'Season', 'Garment Type'];
-            
+            Log::error('querystatus: ', [
+                'status' => $status
+            ]);
+
+            $allowedFilterKeys = ['Mill', 'Bunch', 'Season', 'Garment Type'];         
 
             if ($filteringActivate === 'on') {
                 foreach ($allowedFilterKeys as $key) {
@@ -98,6 +118,7 @@ class SwatchesController extends Controller
             }
 
             $total = $query->count();
+
             $swatches = $query->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();
